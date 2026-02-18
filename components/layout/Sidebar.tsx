@@ -7,6 +7,7 @@ import {
   LuLayoutDashboard,
   LuFolderOpen,
   LuListChecks,
+  LuLightbulb,
   LuChevronLeft,
   LuChevronRight,
   LuCircleDot,
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
   { href: "/", icon: LuLayoutDashboard, label: "Dashboard" },
   { href: "/contexts", icon: LuFolderOpen, label: "Contexts" },
   { href: "/tasks", icon: LuListChecks, label: "Tasks" },
+  { href: "/ideas", icon: LuLightbulb, label: "Ideas" },
 ];
 
 export default function Sidebar({ contexts }: SidebarProps) {

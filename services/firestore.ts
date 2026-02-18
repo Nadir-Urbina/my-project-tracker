@@ -16,11 +16,14 @@ import {
   Project,
   Task,
   SubTask,
+  Idea,
   CreateContextData,
   CreateProjectData,
   CreateTaskData,
   CreateSubTaskData,
+  CreateIdeaData,
   TaskStatus,
+  CONTEXT_COLORS,
 } from "@/types/models";
 
 // Collection references scoped to user
@@ -200,4 +203,91 @@ export function subtasksQuery(uid: string, taskId: string) {
     where("taskId", "==", taskId),
     orderBy("order", "asc")
   );
+}
+
+// ============ IDEAS ============
+
+export async function createIdea(uid: string, data: CreateIdeaData) {
+  const ref = await addDoc(userCollection(uid, "ideas"), {
+    ...data,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+  return ref.id;
+}
+
+export async function updateIdea(
+  uid: string,
+  ideaId: string,
+  data: Partial<Omit<Idea, "id" | "createdAt">>
+) {
+  await updateDoc(userDoc(uid, "ideas", ideaId), {
+    ...data,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function deleteIdea(uid: string, ideaId: string) {
+  await deleteDoc(userDoc(uid, "ideas", ideaId));
+}
+
+export function ideasQuery(uid: string) {
+  return query(
+    userCollection(uid, "ideas"),
+    where("status", "==", "active"),
+    orderBy("createdAt", "desc")
+  );
+}
+
+// ============ IDEA CONVERSIONS ============
+
+export async function convertIdeaToContext(uid: string, idea: Idea) {
+  // Get current context count for order
+  const contextsSnapshot = await query(userCollection(uid, "contexts"));
+
+  // Pick a random color
+  const randomColor = CONTEXT_COLORS[Math.floor(Math.random() * CONTEXT_COLORS.length)];
+
+  // Create context from idea
+  const contextData: CreateContextData = {
+    name: idea.title,
+    description: idea.description,
+    status: "ongoing",
+    color: randomColor,
+    icon: "LuCircleDot",
+    order: 0, // Will be reordered by the UI
+  };
+
+  const contextId = await createContext(uid, contextData);
+
+  // Delete the idea
+  await deleteIdea(uid, idea.id);
+
+  return contextId;
+}
+
+export async function convertIdeaToProject(
+  uid: string,
+  idea: Idea,
+  contextId: string
+) {
+  // Pick a random color
+  const randomColor = CONTEXT_COLORS[Math.floor(Math.random() * CONTEXT_COLORS.length)];
+
+  // Create project from idea
+  const projectData: CreateProjectData = {
+    contextId,
+    name: idea.title,
+    description: idea.description,
+    status: "ongoing",
+    color: randomColor,
+    order: 0, // Will be reordered by the UI
+  };
+
+  const projectId = await createProject(uid, projectData);
+
+  // Delete the idea
+  await deleteIdea(uid, idea.id);
+
+  return projectId;
 }

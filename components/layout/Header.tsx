@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { LuChevronRight } from "react-icons/lu";
 import { useContexts, useProjects, useTasks } from "@/hooks/useFirestore";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 interface Breadcrumb {
   label: string;
@@ -36,6 +37,11 @@ function useBreadcrumbs(pathname: string): Breadcrumb[] {
   // /tasks
   else if (segments[0] === "tasks") {
     crumbs.push({ label: "Tasks" });
+  }
+
+  // /ideas
+  else if (segments[0] === "ideas") {
+    crumbs.push({ label: "Ideas" });
   }
 
   // /projects/[projectId] or /projects/[projectId]/tasks/[taskId]
@@ -86,7 +92,7 @@ export default function Header() {
   const breadcrumbs = useBreadcrumbs(pathname);
 
   return (
-    <header className="flex h-14 shrink-0 items-center border-b border-zinc-200 bg-white px-4 md:px-6 dark:border-zinc-800 dark:bg-zinc-950">
+    <header className="flex h-14 shrink-0 items-center justify-between border-b border-zinc-200 bg-white px-4 md:px-6 dark:border-zinc-800 dark:bg-zinc-950">
       <nav className="flex items-center gap-1.5 text-sm">
         {breadcrumbs.map((crumb, index) => {
           const isLast = index === breadcrumbs.length - 1;
@@ -111,6 +117,7 @@ export default function Header() {
           );
         })}
       </nav>
+      <ThemeToggle />
     </header>
   );
 }

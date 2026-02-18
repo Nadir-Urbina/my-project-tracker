@@ -81,11 +81,22 @@ export interface SubTask {
   completedAt: Timestamp | null;
 }
 
+// Idea - standalone items that can be converted to Context or Project
+export interface Idea {
+  id: string;
+  title: string;
+  description: string;
+  status: "active" | "archived";
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
 // Form data types (without server-generated fields)
 export type CreateContextData = Omit<Context, "id" | "createdAt" | "updatedAt">;
 export type CreateProjectData = Omit<Project, "id" | "createdAt" | "updatedAt">;
 export type CreateTaskData = Omit<Task, "id" | "createdAt" | "updatedAt" | "completedAt" | "completionNotes">;
 export type CreateSubTaskData = Omit<SubTask, "id" | "createdAt" | "updatedAt" | "completedAt">;
+export type CreateIdeaData = Omit<Idea, "id" | "createdAt" | "updatedAt">;
 
 // Status display helpers
 export const ENTITY_STATUS_CONFIG: Record<EntityStatus, { label: string; color: string }> = {

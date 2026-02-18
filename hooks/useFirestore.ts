@@ -8,6 +8,7 @@ import {
   Project,
   Task,
   SubTask,
+  Idea,
   TaskStatus,
 } from "@/types/models";
 import {
@@ -17,6 +18,7 @@ import {
   tasksByStatusQuery,
   recentlyCompletedTasksQuery,
   subtasksQuery,
+  ideasQuery,
 } from "@/services/firestore";
 
 interface UseCollectionResult<T> {
@@ -117,4 +119,13 @@ export function useSubTasks(taskId: string): UseCollectionResult<SubTask> {
     [user, taskId]
   );
   return useCollection<SubTask>(query);
+}
+
+export function useIdeas(): UseCollectionResult<Idea> {
+  const { user } = useAuth();
+  const query = useMemo(
+    () => (user ? ideasQuery(user.uid) : null),
+    [user]
+  );
+  return useCollection<Idea>(query);
 }
