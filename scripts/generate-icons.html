@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PWA Icon Generator - Project Tracker</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f9fafb;
+    }
+    h1 {
+      color: #18181b;
+      margin-bottom: 8px;
+    }
+    p {
+      color: #71717a;
+      margin-bottom: 32px;
+    }
+    .preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+    .preview-item {
+      background: white;
+      border: 1px solid #e4e4e7;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+    .preview-item h3 {
+      font-size: 14px;
+      color: #3f3f46;
+      margin-bottom: 16px;
+    }
+    canvas {
+      border: 1px solid #e4e4e7;
+      border-radius: 4px;
+      margin-bottom: 12px;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    .instructions {
+      background: white;
+      border: 1px solid #e4e4e7;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 32px;
+    }
+    .instructions h2 {
+      font-size: 16px;
+      color: #18181b;
+      margin-bottom: 12px;
+    }
+    .instructions ol {
+      color: #3f3f46;
+      line-height: 1.6;
+    }
+    .instructions code {
+      background: #f4f4f5;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <h1>PWA Icon Generator</h1>
+  <p>Generate all required icons for your Project Tracker PWA</p>
+
+  <div class="preview">
+    <div class="preview-item">
+      <h3>favicon.ico (32×32)</h3>
+      <canvas id="favicon" width="32" height="32"></canvas>
+      <button onclick="downloadIcon('favicon', 32, 'favicon.ico', 'image/x-icon')">Download</button>
+    </div>
+
+    <div class="preview-item">
+      <h3>apple-touch-icon.png (180×180)</h3>
+      <canvas id="apple" width="180" height="180"></canvas>
+      <button onclick="downloadIcon('apple', 180, 'apple-touch-icon.png')">Download</button>
+    </div>
+
+    <div class="preview-item">
+      <h3>icon-192x192.png</h3>
+      <canvas id="icon192" width="192" height="192"></canvas>
+      <button onclick="downloadIcon('icon192', 192, 'icon-192x192.png')">Download</button>
+    </div>
+
+    <div class="preview-item">
+      <h3>icon-512x512.png</h3>
+      <canvas id="icon512" width="512" height="512"></canvas>
+      <button onclick="downloadIcon('icon512', 512, 'icon-512x512.png')">Download</button>
+    </div>
+  </div>
+
+  <div class="instructions">
+    <h2>Instructions</h2>
+    <ol>
+      <li>Click each "Download" button above to download all 4 icon files</li>
+      <li>Move all downloaded files to your <code>public/</code> directory</li>
+      <li>Continue with <code>npm run build</code> to complete PWA setup</li>
+      <li>(Optional) Replace these placeholder icons with custom designs later</li>
+    </ol>
+  </div>
+
+  <script>
+    // Draw icon on canvas
+    function drawIcon(canvasId, size) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+
+      // Blue background (#2563eb)
+      ctx.fillStyle = '#2563eb';
+      ctx.fillRect(0, 0, size, size);
+
+      // White text "PT"
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `bold ${size * 0.4}px -apple-system, BlinkMacSystemFont, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('PT', size / 2, size / 2);
+    }
+
+    // Download icon as file
+    function downloadIcon(canvasId, size, filename, mimeType = 'image/png') {
+      const canvas = document.getElementById(canvasId);
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      }, mimeType);
+    }
+
+    // Generate all icons on page load
+    drawIcon('favicon', 32);
+    drawIcon('apple', 180);
+    drawIcon('icon192', 192);
+    drawIcon('icon512', 512);
+  </script>
+</body>
+</html>
