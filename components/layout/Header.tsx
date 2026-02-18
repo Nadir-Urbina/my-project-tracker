@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { LuChevronRight } from "react-icons/lu";
+import { useContexts, useProjects, useTasks } from "@/hooks/useFirestore";
 
 interface Breadcrumb {
   label: string;
@@ -11,21 +12,69 @@ interface Breadcrumb {
 
 function useBreadcrumbs(pathname: string): Breadcrumb[] {
   const segments = pathname.split("/").filter(Boolean);
+  const { data: contexts } = useContexts();
+  const { data: projects } = useProjects();
+  const { data: tasks } = useTasks();
+
   const crumbs: Breadcrumb[] = [{ label: "Dashboard", href: "/" }];
 
   if (segments.length === 0) return crumbs;
 
+  // /contexts or /contexts/[contextId]
   if (segments[0] === "contexts") {
     crumbs.push({ label: "Contexts", href: "/contexts" });
     if (segments[1]) {
-      crumbs.push({ label: "Context Details" });
+      const contextId = segments[1];
+      const context = contexts.find((c) => c.id === contextId);
+      crumbs.push({
+        label: context?.name || "Context",
+        href: `/contexts/${contextId}`
+      });
     }
-  } else if (segments[0] === "tasks") {
+  }
+
+  // /tasks
+  else if (segments[0] === "tasks") {
     crumbs.push({ label: "Tasks" });
-  } else if (segments[0] === "projects") {
-    crumbs.push({ label: "Project Details" });
-    if (segments[2] === "tasks" && segments[3]) {
-      crumbs.push({ label: "Task Details" });
+  }
+
+  // /projects/[projectId] or /projects/[projectId]/tasks/[taskId]
+  else if (segments[0] === "projects") {
+    const projectId = segments[1];
+    const project = projects.find((p) => p.id === projectId);
+
+    if (project) {
+      // Find the context this project belongs to
+      const context = contexts.find((c) => c.id === project.contextId);
+
+      // Add context breadcrumb
+      if (context) {
+        crumbs.push({
+          label: context.name,
+          href: `/contexts/${context.id}`
+        });
+      }
+
+      // Add project breadcrumb
+      crumbs.push({
+        label: project.name,
+        href: `/projects/${projectId}`
+      });
+
+      // /projects/[projectId]/tasks/[taskId]
+      if (segments[2] === "tasks" && segments[3]) {
+        const taskId = segments[3];
+        const task = tasks.find((t) => t.id === taskId);
+        crumbs.push({
+          label: task?.name || "Task"
+        });
+      }
+    } else {
+      // Fallback if project not found yet (loading)
+      crumbs.push({ label: "Project" });
+      if (segments[2] === "tasks" && segments[3]) {
+        crumbs.push({ label: "Task" });
+      }
     }
   }
 
