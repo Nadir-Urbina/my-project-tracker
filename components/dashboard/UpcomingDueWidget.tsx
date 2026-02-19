@@ -43,16 +43,24 @@ export default function UpcomingDueWidget({
   };
 
   // Filter tasks with due dates in next 5 days (not completed/cancelled)
-  const now = new Date();
-  const fiveDaysFromNow = new Date();
-  fiveDaysFromNow.setDate(now.getDate() + 5);
+  // Normalize to start of day to avoid timezone issues
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const fiveDaysFromNow = new Date(today);
+  fiveDaysFromNow.setDate(today.getDate() + 5);
 
   const upcomingTasks = tasks
     .filter((task) => {
       if (task.status === "completed" || task.status === "cancelled") return false;
       const dueDate = toDate(task.dueDate);
       if (!dueDate) return false;
-      return dueDate >= now && dueDate <= fiveDaysFromNow;
+
+      // Normalize due date to start of day for comparison
+      const normalizedDueDate = new Date(dueDate);
+      normalizedDueDate.setHours(0, 0, 0, 0);
+
+      return normalizedDueDate >= today && normalizedDueDate <= fiveDaysFromNow;
     })
     .sort((a, b) => {
       const dateA = toDate(a.dueDate);
@@ -64,7 +72,12 @@ export default function UpcomingDueWidget({
   const getDaysUntilDue = (task: Task) => {
     const dueDate = toDate(task.dueDate);
     if (!dueDate) return null;
-    const days = differenceInDays(dueDate, now);
+
+    // Normalize both dates to start of day for accurate day difference
+    const normalizedDueDate = new Date(dueDate);
+    normalizedDueDate.setHours(0, 0, 0, 0);
+
+    const days = differenceInDays(normalizedDueDate, today);
     if (days === 0) return "Today";
     if (days === 1) return "Tomorrow";
     return `${days} days`;
@@ -73,7 +86,12 @@ export default function UpcomingDueWidget({
   const getDueDateColor = (task: Task) => {
     const dueDate = toDate(task.dueDate);
     if (!dueDate) return "";
-    const days = differenceInDays(dueDate, now);
+
+    // Normalize both dates to start of day
+    const normalizedDueDate = new Date(dueDate);
+    normalizedDueDate.setHours(0, 0, 0, 0);
+
+    const days = differenceInDays(normalizedDueDate, today);
     if (days === 0) return "text-red-600 dark:text-red-400";
     if (days === 1) return "text-orange-600 dark:text-orange-400";
     return "text-amber-600 dark:text-amber-400";
