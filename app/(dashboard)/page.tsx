@@ -11,6 +11,7 @@ import { toDate } from "@/types/models";
 import WelcomeBar from "@/components/dashboard/WelcomeBar";
 import NextActionsWidget from "@/components/dashboard/NextActionsWidget";
 import InProgressWidget from "@/components/dashboard/InProgressWidget";
+import UpcomingDueWidget from "@/components/dashboard/UpcomingDueWidget";
 import RecentlyCompletedWidget from "@/components/dashboard/RecentlyCompletedWidget";
 import ProjectOverviewWidget from "@/components/dashboard/ProjectOverviewWidget";
 
@@ -42,6 +43,8 @@ export default function DashboardPage() {
         <NextActionsWidget tasks={nextActions} projects={projects} />
         <InProgressWidget tasks={inProgress} projects={projects} />
       </div>
+
+      <UpcomingDueWidget tasks={allTasks} projects={projects} />
 
       <ProjectOverviewWidget
         projects={projects}
