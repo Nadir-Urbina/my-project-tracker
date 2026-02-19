@@ -11,7 +11,7 @@ import {
   LuChevronLeft,
   LuChevronRight,
   LuCircleDot,
-  LuLogOut,
+  LuUser,
 } from "react-icons/lu";
 import { useAuth } from "@/contexts/AuthContext";
 import { Context } from "@/types/models";
@@ -30,7 +30,7 @@ const NAV_ITEMS = [
 export default function Sidebar({ contexts }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
-  const { signOut, user } = useAuth();
+  const { user } = useAuth();
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -120,27 +120,38 @@ export default function Sidebar({ contexts }: SidebarProps) {
 
       {/* Bottom section */}
       <div className="border-t border-zinc-200 p-2 dark:border-zinc-800">
-        {/* User info */}
-        <div className="mb-1 flex items-center gap-3 rounded-lg px-3 py-2">
+        {/* Profile link */}
+        <Link
+          href="/profile"
+          className={`mb-1 flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+            pathname === "/profile"
+              ? "bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+              : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200"
+          }`}
+          title={collapsed ? "Profile" : undefined}
+        >
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
-            {user?.email?.charAt(0).toUpperCase() || "U"}
+            {user?.photoURL ? (
+              <img
+                src={user.photoURL}
+                alt="Profile"
+                className="h-full w-full rounded-full object-cover"
+              />
+            ) : (
+              user?.email?.charAt(0).toUpperCase() || "U"
+            )}
           </div>
           {!collapsed && (
-            <span className="truncate text-xs text-zinc-500 dark:text-zinc-400">
-              {user?.email}
-            </span>
+            <div className="flex-1">
+              <div className="truncate text-xs font-medium">
+                {user?.displayName || "Profile"}
+              </div>
+              <div className="truncate text-xs text-zinc-500 dark:text-zinc-400">
+                {user?.email}
+              </div>
+            </div>
           )}
-        </div>
-
-        {/* Sign out */}
-        <button
-          onClick={signOut}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200"
-          title={collapsed ? "Sign Out" : undefined}
-        >
-          <LuLogOut className="h-4 w-4 shrink-0" />
-          {!collapsed && <span>Sign Out</span>}
-        </button>
+        </Link>
 
         {/* Collapse toggle */}
         <button

@@ -7,6 +7,7 @@ import {
   LuFolderOpen,
   LuListChecks,
   LuLightbulb,
+  LuUser,
 } from "react-icons/lu";
 
 const NAV_ITEMS = [
@@ -14,6 +15,7 @@ const NAV_ITEMS = [
   { href: "/contexts", icon: LuFolderOpen, label: "Contexts" },
   { href: "/tasks", icon: LuListChecks, label: "Tasks" },
   { href: "/ideas", icon: LuLightbulb, label: "Ideas" },
+  { href: "/profile", icon: LuUser, label: "Profile" },
 ];
 
 export default function BottomNav() {
