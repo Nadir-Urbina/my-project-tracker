@@ -93,7 +93,7 @@ export default function Header() {
 
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-zinc-200 bg-white px-4 md:px-6 dark:border-zinc-800 dark:bg-zinc-950">
-      <nav className="flex items-center gap-1.5 text-sm">
+      <nav className="hidden items-center gap-1.5 text-sm md:flex">
         {breadcrumbs.map((crumb, index) => {
           const isLast = index === breadcrumbs.length - 1;
           return (
@@ -117,6 +117,7 @@ export default function Header() {
           );
         })}
       </nav>
+      <div className="flex-1 md:flex-none" />
       <ThemeToggle />
     </header>
   );

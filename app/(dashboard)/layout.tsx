@@ -39,9 +39,7 @@ export default function DashboardLayout({
         <Sidebar contexts={contexts} />
       </div>
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="hidden md:flex">
-          <Header />
-        </div>
+        <Header />
         <main className="flex-1 overflow-y-auto p-4 pb-20 md:p-6 md:pb-6">
           {children}
         </main>

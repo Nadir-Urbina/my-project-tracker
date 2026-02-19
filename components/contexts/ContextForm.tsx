@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { createContext, updateContext } from "@/services/firestore";
 import { Context, EntityStatus, CONTEXT_COLORS } from "@/types/models";
 import Button from "@/components/ui/Button";
+import { useMentions } from "@/hooks/useMentions";
+import MentionDropdown from "@/components/ui/MentionDropdown";
 
 interface ContextFormProps {
   context?: Context;
@@ -23,6 +25,17 @@ export default function ContextForm({
   const [status, setStatus] = useState<EntityStatus>(context?.status || "ongoing");
   const [color, setColor] = useState(context?.color || CONTEXT_COLORS[0]);
   const [loading, setLoading] = useState(false);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+
+  const { showSuggestions, filteredMentions, selectedIndex, insertMention } =
+    useMentions({
+      inputRef: descriptionRef,
+      onInsert: (value) => {
+        if (descriptionRef.current) {
+          setDescription(descriptionRef.current.value);
+        }
+      },
+    });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,14 +87,28 @@ export default function ContextForm({
       <div>
         <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Description
+          <span className="ml-2 text-xs font-normal text-zinc-500 dark:text-zinc-500">
+            (Type @ for shortcuts)
+          </span>
         </label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={2}
-          placeholder="What is this context about?"
-          className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
-        />
+        <div className="relative">
+          <textarea
+            ref={descriptionRef}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={2}
+            placeholder="What is this context about?"
+            className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
+          />
+          {showSuggestions && (
+            <MentionDropdown
+              items={filteredMentions}
+              selectedIndex={selectedIndex}
+              onSelect={insertMention}
+              inputRef={descriptionRef}
+            />
+          )}
+        </div>
       </div>
 
       <div>

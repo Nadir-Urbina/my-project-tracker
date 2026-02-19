@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { createIdea, updateIdea } from "@/services/firestore";
 import { Idea } from "@/types/models";
 import Button from "@/components/ui/Button";
+import { useMentions } from "@/hooks/useMentions";
+import MentionDropdown from "@/components/ui/MentionDropdown";
 
 interface IdeaFormProps {
   idea?: Idea;
@@ -17,6 +19,23 @@ export default function IdeaForm({ idea, onComplete }: IdeaFormProps) {
   const [description, setDescription] = useState(idea?.description || "");
   const [status, setStatus] = useState<"active" | "archived">(idea?.status || "active");
   const [loading, setLoading] = useState(false);
+
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+
+  const {
+    showSuggestions,
+    filteredMentions,
+    selectedIndex,
+    insertMention,
+  } = useMentions({
+    inputRef: descriptionRef,
+    onInsert: (value) => {
+      // Update description state when mention is inserted
+      if (descriptionRef.current) {
+        setDescription(descriptionRef.current.value);
+      }
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,18 +73,30 @@ export default function IdeaForm({ idea, onComplete }: IdeaFormProps) {
         />
       </div>
 
-      <div>
+      <div className="relative">
         <label htmlFor="description" className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Description
+          <span className="ml-2 text-xs font-normal text-zinc-400 dark:text-zinc-500">
+            Tip: Type @ for shortcuts
+          </span>
         </label>
         <textarea
+          ref={descriptionRef}
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={4}
           className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
-          placeholder="Describe your idea"
+          placeholder="Describe your idea (type @ for date shortcuts)"
         />
+        {showSuggestions && (
+          <MentionDropdown
+            items={filteredMentions}
+            selectedIndex={selectedIndex}
+            onSelect={insertMention}
+            inputRef={descriptionRef}
+          />
+        )}
       </div>
 
       <div>
