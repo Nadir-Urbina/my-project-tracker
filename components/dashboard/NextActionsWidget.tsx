@@ -10,6 +10,7 @@ import CompletionNotesDialog from "@/components/ui/CompletionNotesDialog";
 import { Task, Project, TaskStatus } from "@/types/models";
 import { useAuth } from "@/contexts/AuthContext";
 import { updateTask } from "@/services/firestore";
+import { celebrateTaskCompletion } from "@/lib/confetti";
 
 interface NextActionsWidgetProps {
   tasks: Task[];
@@ -39,6 +40,7 @@ export default function NextActionsWidget({
     if (!user || !completingTaskId) return;
     await updateTask(user.uid, completingTaskId, { status: "completed", completionNotes: notes });
     setCompletingTaskId(null);
+    celebrateTaskCompletion();
   };
 
   return (

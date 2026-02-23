@@ -5,6 +5,7 @@ import Link from "next/link";
 import { LuChevronRight } from "react-icons/lu";
 import { useContexts, useProjects, useTasks } from "@/hooks/useFirestore";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import RefreshButton from "@/components/ui/RefreshButton";
 
 interface Breadcrumb {
   label: string;
@@ -118,7 +119,10 @@ export default function Header() {
         })}
       </nav>
       <div className="flex-1 md:flex-none" />
-      <ThemeToggle />
+      <div className="flex items-center gap-1">
+        <RefreshButton />
+        <ThemeToggle />
+      </div>
     </header>
   );
 }

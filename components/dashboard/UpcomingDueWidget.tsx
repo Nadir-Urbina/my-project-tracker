@@ -11,6 +11,7 @@ import CompletionNotesDialog from "@/components/ui/CompletionNotesDialog";
 import { Task, Project, TaskStatus, toDate } from "@/types/models";
 import { useAuth } from "@/contexts/AuthContext";
 import { updateTask } from "@/services/firestore";
+import { celebrateTaskCompletion } from "@/lib/confetti";
 
 interface UpcomingDueWidgetProps {
   tasks: Task[];
@@ -40,6 +41,7 @@ export default function UpcomingDueWidget({
     if (!user || !completingTaskId) return;
     await updateTask(user.uid, completingTaskId, { status: "completed", completionNotes: notes });
     setCompletingTaskId(null);
+    celebrateTaskCompletion();
   };
 
   // Filter tasks with due dates in next 5 days (not completed/cancelled)
