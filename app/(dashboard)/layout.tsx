@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useContexts } from "@/hooks/useFirestore";
@@ -15,13 +15,16 @@ export default function DashboardLayout({
 }) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const { data: contexts } = useContexts();
 
   useEffect(() => {
-    if (!loading && !user) {
+    // Only redirect to login for protected routes — the root route renders
+    // the landing page for unauthenticated visitors
+    if (!loading && !user && pathname !== "/") {
       router.push("/login");
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, pathname]);
 
   if (loading) {
     return (
@@ -31,7 +34,8 @@ export default function DashboardLayout({
     );
   }
 
-  if (!user) return null;
+  // Unauthenticated at root: render landing page without sidebar/header
+  if (!user) return <>{children}</>;
 
   return (
     <div className="flex h-screen bg-zinc-50 dark:bg-zinc-950">

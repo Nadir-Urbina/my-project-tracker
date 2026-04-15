@@ -1,5 +1,7 @@
 "use client";
 
+import { useAuth } from "@/contexts/AuthContext";
+import LandingPage from "@/components/landing/LandingPage";
 import {
   useContexts,
   useProjects,
@@ -16,6 +18,7 @@ import RecentlyCompletedWidget from "@/components/dashboard/RecentlyCompletedWid
 import ProjectOverviewWidget from "@/components/dashboard/ProjectOverviewWidget";
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const { data: contexts } = useContexts();
   const { data: projects } = useProjects();
   const { data: allTasks } = useTasks();
@@ -30,6 +33,8 @@ export default function DashboardPage() {
     const completedAt = toDate(t.completedAt);
     return completedAt && completedAt >= today;
   }).length;
+
+  if (!user) return <LandingPage />;
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">

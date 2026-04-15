@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { LuArrowLeft } from "react-icons/lu";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
@@ -38,6 +40,13 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-zinc-950">
+      <Link
+        href="/"
+        className="absolute left-6 top-6 flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+      >
+        <LuArrowLeft className="h-4 w-4" />
+        Back
+      </Link>
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <img src="/icon-192x192.png" alt="FolioGTD" className="mx-auto mb-4 h-12 w-12 rounded-xl" />
