@@ -1,6 +1,6 @@
 {
-  "name": "Project Tracker",
-  "short_name": "Projects",
+  "name": "FolioGTD",
+  "short_name": "FolioGTD",
   "description": "Personal project management command center",
   "start_url": "/",
   "display": "standalone",

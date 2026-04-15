@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { LuLayoutDashboard } from "react-icons/lu";
 
 export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -41,11 +40,9 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-zinc-950">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white">
-            <LuLayoutDashboard className="h-6 w-6" />
-          </div>
+          <img src="/icon-192x192.png" alt="FolioGTD" className="mx-auto mb-4 h-12 w-12 rounded-xl" />
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-            Project Tracker
+            FolioGTD
           </h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
             {isSignUp ? "Create your account" : "Sign in to your workspace"}

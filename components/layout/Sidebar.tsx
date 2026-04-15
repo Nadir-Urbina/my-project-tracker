@@ -45,12 +45,10 @@ export default function Sidebar({ contexts }: SidebarProps) {
     >
       {/* Logo area */}
       <div className="flex h-14 items-center border-b border-zinc-200 px-4 dark:border-zinc-800">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white">
-          <LuLayoutDashboard className="h-4 w-4" />
-        </div>
+        <img src="/icon-192x192.png" alt="FolioGTD" className="h-8 w-8 shrink-0 rounded-lg" />
         {!collapsed && (
           <span className="ml-3 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-            Project Tracker
+            FolioGTD
           </span>
         )}
       </div>
