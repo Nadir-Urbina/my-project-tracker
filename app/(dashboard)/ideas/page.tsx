@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { LuPlus, LuLightbulb } from "react-icons/lu";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIdeas } from "@/hooks/useFirestore";
-import { deleteIdea, convertIdeaToContext } from "@/services/firestore";
+import { deleteIdea, convertIdeaToContext, createIdea } from "@/services/firestore";
 import { Idea } from "@/types/models";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
@@ -26,6 +26,28 @@ export default function IdeasPage() {
   const [deletingIdeaId, setDeletingIdeaId] = useState<string | null>(null);
   const [convertingToContextIdea, setConvertingToContextIdea] = useState<Idea | null>(null);
   const [convertingToProjectIdea, setConvertingToProjectIdea] = useState<Idea | null>(null);
+  const [quickTitle, setQuickTitle] = useState("");
+  const [quickLoading, setQuickLoading] = useState(false);
+  const quickInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!loading) quickInputRef.current?.focus();
+  }, [loading]);
+
+  const handleQuickAdd = async (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    if (!user || !quickTitle.trim() || quickLoading) return;
+    setQuickLoading(true);
+    try {
+      await createIdea(user.uid, { title: quickTitle.trim(), description: "", status: "active" });
+      setQuickTitle("");
+      quickInputRef.current?.focus();
+    } catch {
+      toast("Failed to add idea");
+    } finally {
+      setQuickLoading(false);
+    }
+  };
 
   const handleDelete = async () => {
     if (!user || !deletingIdeaId) return;
@@ -47,7 +69,7 @@ export default function IdeasPage() {
     }
   };
 
-  const handleConvertToProject = (contextId: string, projectId: string) => {
+  const handleConvertToProject = (contextId: string, _projectId: string) => {
     setConvertingToProjectIdea(null);
     toast("Idea converted to project");
     router.push(`/contexts/${contextId}`);
@@ -62,7 +84,7 @@ export default function IdeasPage() {
   }
 
   return (
-    <div>
+    <div className="flex flex-col">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <LuLightbulb className="h-6 w-6 text-amber-500" />
@@ -76,11 +98,26 @@ export default function IdeasPage() {
         </Button>
       </div>
 
+      <form
+        onSubmit={handleQuickAdd}
+        className="mb-6 flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3.5 dark:border-blue-900 dark:bg-blue-950/40"
+      >
+        <LuPlus className="h-5 w-5 shrink-0 text-blue-400 dark:text-blue-500" />
+        <input
+          ref={quickInputRef}
+          type="text"
+          value={quickTitle}
+          onChange={(e) => setQuickTitle(e.target.value)}
+          placeholder="Capture an idea..."
+          className="flex-1 bg-transparent text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none dark:text-zinc-100 dark:placeholder-zinc-500"
+          disabled={quickLoading}
+        />
+      </form>
+
       {ideas.length === 0 ? (
         <EmptyState
           title="No ideas yet"
           description="Capture your ideas here before organizing them into contexts or projects"
-          action={{ label: "Create Idea", onClick: () => setShowForm(true) }}
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

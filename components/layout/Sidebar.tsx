@@ -12,9 +12,11 @@ import {
   LuChevronRight,
   LuCircleDot,
   LuUser,
+  LuSparkles,
 } from "react-icons/lu";
 import { useAuth } from "@/contexts/AuthContext";
 import { Context } from "@/types/models";
+import WishListModal from "@/components/feedback/WishListModal";
 
 interface SidebarProps {
   contexts: Context[];
@@ -29,6 +31,7 @@ const NAV_ITEMS = [
 
 export default function Sidebar({ contexts }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
+  const [showWishList, setShowWishList] = useState(false);
   const pathname = usePathname();
   const { user } = useAuth();
 
@@ -75,6 +78,23 @@ export default function Sidebar({ contexts }: SidebarProps) {
               </Link>
             );
           })}
+        </div>
+
+        {/* Feedback section */}
+        <div className="mt-6">
+          {!collapsed && (
+            <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+              Feedback
+            </p>
+          )}
+          <button
+            onClick={() => setShowWishList(true)}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200"
+            title={collapsed ? "Wish List" : undefined}
+          >
+            <LuSparkles className="h-4 w-4 shrink-0" />
+            {!collapsed && <span>Wish List</span>}
+          </button>
         </div>
 
         {/* Contexts list */}
@@ -128,12 +148,13 @@ export default function Sidebar({ contexts }: SidebarProps) {
           }`}
           title={collapsed ? "Profile" : undefined}
         >
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
             {user?.photoURL ? (
               <img
                 src={user.photoURL}
                 alt="Profile"
-                className="h-full w-full rounded-full object-cover"
+                referrerPolicy="no-referrer"
+                className="h-full w-full object-cover"
               />
             ) : (
               user?.email?.charAt(0).toUpperCase() || "U"
@@ -167,6 +188,8 @@ export default function Sidebar({ contexts }: SidebarProps) {
           )}
         </button>
       </div>
+
+      <WishListModal open={showWishList} onClose={() => setShowWishList(false)} />
     </aside>
   );
 }
