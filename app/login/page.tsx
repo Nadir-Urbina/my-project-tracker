@@ -49,7 +49,9 @@ export default function LoginPage() {
       </Link>
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <img src="/icon-192x192.png" alt="FolioGTD" className="mx-auto mb-4 h-12 w-12 rounded-xl" />
+          <Link href="/">
+            <img src="/icon-192x192.png" alt="FolioGTD" className="mx-auto mb-4 h-12 w-12 rounded-xl transition-opacity hover:opacity-80" />
+          </Link>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
             FolioGTD
           </h1>

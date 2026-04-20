@@ -22,7 +22,7 @@ export default function DashboardLayout({
     // Only redirect to login for protected routes — the root route renders
     // the landing page for unauthenticated visitors
     if (!loading && !user && pathname !== "/") {
-      router.push("/login");
+      router.push("/");
     }
   }, [user, loading, router, pathname]);
 

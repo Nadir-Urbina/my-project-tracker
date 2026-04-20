@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import {
   LuArrowRight,
   LuLayoutDashboard,
@@ -10,26 +13,36 @@ import {
   LuSparkles,
   LuFolderOpen,
   LuListChecks,
+  LuRefreshCw,
 } from "react-icons/lu";
+
+const PERSONAS = [
+  "Solo Founder",
+  "Indie Hacker",
+  "Side-Hustler",
+  "Freelancer",
+  "Builder",
+  "Pioneer",
+];
 
 const VALUE_PROPS = [
   {
     icon: LuZap,
     title: "Always know what's next",
     description:
-      "Next Actions and In Progress tasks are front and center so you never lose momentum.",
+      "Next Actions and In Progress tasks are front and center so you never lose momentum — no matter which hat you're wearing today.",
   },
   {
-    icon: LuLayers,
-    title: "Structure that scales",
+    icon: LuRefreshCw,
+    title: "Context-switch without the chaos",
     description:
-      "Organize work into Contexts, Projects, Tasks, and Subtasks — as simple or detailed as you need.",
+      "Separate your day job, side project, and personal life into Contexts. Jump between them cleanly — nothing bleeds into anything else.",
   },
   {
     icon: LuLightbulb,
     title: "Capture ideas instantly",
     description:
-      "Dedicated inbox for ideas. Convert them to projects when you're ready, without losing a thought.",
+      "Dedicated inbox for ideas. Convert them to projects when you're ready, without losing a thought or breaking your current flow.",
   },
 ];
 
@@ -47,12 +60,15 @@ export default function LandingPage() {
             />
             <span className="text-sm font-semibold text-white">FolioGTD</span>
           </div>
-          <Link
-            href="/login"
-            className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
-          >
-            Sign In
-          </Link>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Link
+              href="/login"
+              className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+            >
+              Sign In
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -69,15 +85,16 @@ export default function LandingPage() {
             <div>
               <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1.5 text-xs font-medium text-blue-400">
                 <LuSparkles className="h-3 w-3" />
-                Free, forever — no credit card required
+                Built for solo founders &amp; side-hustlers
               </div>
               <h1 className="mb-5 text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl">
-                Your personal command center for getting things done.
+                One brain. Multiple ventures. Zero chaos.
               </h1>
               <p className="mb-8 text-lg leading-relaxed text-zinc-400">
-                FolioGTD helps you organize your work across Contexts, Projects,
-                and Tasks — with a clear view of what matters today. No noise,
-                no bloat, no team features you&apos;ll never use.
+                FolioGTD is built for founders who wear every hat. Organize your
+                day job, side projects, and everything in between — and always
+                know exactly what to work on next, regardless of which context
+                you're in.
               </p>
               <div className="flex flex-wrap items-center gap-4">
                 <Link
@@ -87,6 +104,22 @@ export default function LandingPage() {
                   Get Started Free
                   <LuArrowRight className="h-4 w-4" />
                 </Link>
+                <span className="text-xs text-zinc-500">Free to use. No credit card.</span>
+              </div>
+
+              {/* Persona chips */}
+              <div className="mt-8">
+                <p className="mb-3 text-xs text-zinc-600">Made for people like you →</p>
+                <div className="flex flex-wrap gap-2">
+                  {PERSONAS.map((p) => (
+                    <span
+                      key={p}
+                      className="rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 text-xs font-medium text-zinc-400"
+                    >
+                      {p}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -384,18 +417,19 @@ export default function LandingPage() {
                 Structure
               </p>
               <h2 className="mb-4 text-3xl font-bold text-zinc-900 dark:text-zinc-50">
-                Built around how you actually think
+                Built for how founders actually think
               </h2>
               <p className="mb-5 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
                 From big-picture life areas down to individual subtasks —
-                everything has its place.
+                everything has its place, and nothing bleeds into the wrong
+                context.
               </p>
               <div className="space-y-2">
                 {[
                   {
                     icon: LuFolderOpen,
                     label: "Contexts",
-                    desc: "Separate areas of your life — Work, Side project, Personal",
+                    desc: "Day Job · SaaS · Consulting · Family — each world stays separate",
                   },
                   {
                     icon: LuLayoutDashboard,
@@ -521,20 +555,20 @@ export default function LandingPage() {
       </section>
 
       {/* ── FREE BANNER ── */}
-      <section className="bg-blue-600 py-20">
+      <section className="bg-zinc-50 py-20 dark:bg-zinc-900">
         <div className="mx-auto max-w-6xl px-6 text-center">
-          <h2 className="mb-4 text-3xl font-bold text-white sm:text-4xl">
-            100% free. No catch.
+          <h2 className="mb-4 text-3xl font-bold text-zinc-900 sm:text-4xl dark:text-zinc-50">
+            Stop juggling. Start shipping.
           </h2>
-          <p className="mb-8 text-lg text-blue-100">
-            No plans. No paywalls. No credit card. Just sign in and start
-            organizing.
+          <p className="mb-8 text-lg text-zinc-500 dark:text-zinc-400">
+            No plans, no paywalls, no team seats you&apos;ll never fill.
+            Just you, your projects, and a clear head.
           </p>
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-semibold text-blue-600 shadow-lg transition-all hover:bg-blue-50"
+            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition-all hover:bg-blue-700"
           >
-            Start for Free
+            Get Started Free
             <LuArrowRight className="h-4 w-4" />
           </Link>
         </div>

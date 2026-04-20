@@ -74,7 +74,7 @@ export default function ProfilePage() {
   const handleSignOut = async () => {
     try {
       await signOut();
-      router.push("/login");
+      // Navigation is handled by the dashboard layout's auth guard
     } catch (error) {
       toast("Failed to sign out", "error");
     }
