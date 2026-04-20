@@ -10,8 +10,9 @@ import {
   LuLightbulb,
   LuChevronLeft,
   LuChevronRight,
+  LuChevronDown,
   LuCircleDot,
-  LuUser,
+  LuSearch,
   LuSparkles,
 } from "react-icons/lu";
 import { useAuth } from "@/contexts/AuthContext";
@@ -24,16 +25,27 @@ interface SidebarProps {
 
 const NAV_ITEMS = [
   { href: "/", icon: LuLayoutDashboard, label: "Dashboard" },
-  { href: "/contexts", icon: LuFolderOpen, label: "Contexts" },
   { href: "/tasks", icon: LuListChecks, label: "Tasks" },
   { href: "/ideas", icon: LuLightbulb, label: "Ideas" },
 ];
 
+const CONTEXT_LIMIT = 7;
+
 export default function Sidebar({ contexts }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [showWishList, setShowWishList] = useState(false);
+  const [contextsOpen, setContextsOpen] = useState(true);
+  const [contextSearch, setContextSearch] = useState("");
   const pathname = usePathname();
   const { user } = useAuth();
+
+  const ongoingContexts = contexts.filter((c) => c.status === "ongoing");
+  const filteredContexts = contextSearch
+    ? ongoingContexts.filter((c) =>
+        c.name.toLowerCase().includes(contextSearch.toLowerCase())
+      )
+    : ongoingContexts.slice(0, CONTEXT_LIMIT);
+  const hasMore = !contextSearch && ongoingContexts.length > CONTEXT_LIMIT;
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -98,17 +110,41 @@ export default function Sidebar({ contexts }: SidebarProps) {
         </div>
 
         {/* Contexts list */}
-        {contexts.length > 0 && (
+        {ongoingContexts.length > 0 && (
           <div className="mt-6">
             {!collapsed && (
-              <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-                Contexts
-              </p>
+              <>
+                {/* Header row: label + collapse toggle */}
+                <button
+                  onClick={() => setContextsOpen((o) => !o)}
+                  className="mb-1 flex w-full items-center justify-between px-3 py-0.5 text-xs font-semibold uppercase tracking-wider text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
+                >
+                  <span>Contexts</span>
+                  <LuChevronDown
+                    className={`h-3.5 w-3.5 transition-transform ${contextsOpen ? "" : "-rotate-90"}`}
+                  />
+                </button>
+
+                {/* Search — only when expanded */}
+                {contextsOpen && (
+                  <div className="relative mb-1 px-1">
+                    <LuSearch className="absolute left-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400 dark:text-zinc-500" />
+                    <input
+                      type="text"
+                      value={contextSearch}
+                      onChange={(e) => setContextSearch(e.target.value)}
+                      placeholder="Search…"
+                      className="w-full rounded-md border border-zinc-200 bg-zinc-50 py-1 pl-7 pr-2 text-xs text-zinc-700 placeholder-zinc-400 focus:border-blue-400 focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:placeholder-zinc-600"
+                    />
+                  </div>
+                )}
+              </>
             )}
-            <div className="space-y-0.5">
-              {contexts
-                .filter((c) => c.status === "ongoing")
-                .map((ctx) => {
+
+            {/* Context links */}
+            {(collapsed || contextsOpen) && (
+              <div className="space-y-0.5">
+                {filteredContexts.map((ctx) => {
                   const active = pathname === `/contexts/${ctx.id}`;
                   return (
                     <Link
@@ -131,7 +167,27 @@ export default function Sidebar({ contexts }: SidebarProps) {
                     </Link>
                   );
                 })}
-            </div>
+
+                {/* All Contexts link — always shown, or as overflow hint */}
+                {!collapsed && (
+                  <Link
+                    href="/contexts"
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                      hasMore
+                        ? "text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950/30"
+                        : "text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:text-zinc-500 dark:hover:bg-zinc-900 dark:hover:text-zinc-300"
+                    }`}
+                  >
+                    <LuFolderOpen className="h-4 w-4 shrink-0" />
+                    <span>
+                      {hasMore
+                        ? `All contexts (${ongoingContexts.length})`
+                        : "All contexts"}
+                    </span>
+                  </Link>
+                )}
+              </div>
+            )}
           </div>
         )}
       </nav>
