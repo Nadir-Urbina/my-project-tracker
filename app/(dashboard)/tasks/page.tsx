@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { LuListChecks } from "react-icons/lu";
+import { useState, useMemo, useRef, useEffect } from "react";
+import { LuListChecks, LuPlus, LuSlidersHorizontal } from "react-icons/lu";
 import { useAuth } from "@/contexts/AuthContext";
 import { useContexts, useProjects, useTasks } from "@/hooks/useFirestore";
-import { deleteTask, updateTask } from "@/services/firestore";
+import { createTask, deleteTask, updateTask } from "@/services/firestore";
 import { Task, TASK_STATUS_CONFIG, TaskStatus } from "@/types/models";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -37,6 +37,10 @@ export default function AllTasksPage() {
 
   const [selectedContextId, setSelectedContextId] = useState("");
   const [selectedProjectId, setSelectedProjectId] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState<TaskStatus | "">("");
+  const [showFilters, setShowFilters] = useState(false);
+
+  const activeFilterCount = [selectedContextId, selectedProjectId, selectedStatus].filter(Boolean).length;
 
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>();
@@ -45,6 +49,13 @@ export default function AllTasksPage() {
     taskId: string;
     newOrder: number;
   } | null>(null);
+  const [quickTitle, setQuickTitle] = useState("");
+  const [quickLoading, setQuickLoading] = useState(false);
+  const quickInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!loading) quickInputRef.current?.focus();
+  }, [loading]);
 
   // Filter projects by selected context
   const filteredProjects = useMemo(() => {
@@ -52,17 +63,22 @@ export default function AllTasksPage() {
     return projects.filter((p) => p.contextId === selectedContextId);
   }, [projects, selectedContextId]);
 
-  // Filter tasks by selected context and/or project
+  // Filter tasks by selected context, project, and/or status
   const filteredTasks = useMemo(() => {
     let tasks = allTasks;
     if (selectedContextId) {
       tasks = tasks.filter((t) => t.contextId === selectedContextId);
     }
-    if (selectedProjectId) {
+    if (selectedProjectId === "__none__") {
+      tasks = tasks.filter((t) => !t.projectId);
+    } else if (selectedProjectId) {
       tasks = tasks.filter((t) => t.projectId === selectedProjectId);
     }
+    if (selectedStatus) {
+      tasks = tasks.filter((t) => t.status === selectedStatus);
+    }
     return tasks;
-  }, [allTasks, selectedContextId, selectedProjectId]);
+  }, [allTasks, selectedContextId, selectedProjectId, selectedStatus]);
 
   // Map projectId -> project name for display
   const projectMap = useMemo(() => {
@@ -101,6 +117,32 @@ export default function AllTasksPage() {
     await deleteTask(user.uid, deletingTaskId);
     setDeletingTaskId(null);
     toast("Task deleted");
+  };
+
+  const handleQuickAdd = async (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    if (!user || !quickTitle.trim() || quickLoading) return;
+    setQuickLoading(true);
+    try {
+      await createTask(user.uid, {
+        projectId: "",
+        contextId: "",
+        name: quickTitle.trim(),
+        description: "",
+        status: "next_action",
+        priority: "medium",
+        type: "follow_up",
+        dueDate: null,
+        order: allTasks.length,
+        timeSpent: 0,
+      });
+      setQuickTitle("");
+      quickInputRef.current?.focus();
+    } catch {
+      toast("Failed to add task");
+    } finally {
+      setQuickLoading(false);
+    }
   };
 
   const handleContextFilterChange = (contextId: string) => {
@@ -143,41 +185,43 @@ export default function AllTasksPage() {
           <ViewToggle view={view} onChange={setView} />
         </div>
 
-        {/* Filters */}
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <select
-            value={selectedContextId}
-            onChange={(e) => handleContextFilterChange(e.target.value)}
-            className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+        <div className="mt-4">
+          <button
+            onClick={() => setShowFilters(true)}
+            className="flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
-            <option value="">All Contexts</option>
-            {contexts.map((ctx) => (
-              <option key={ctx.id} value={ctx.id}>
-                {ctx.name}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={selectedProjectId}
-            onChange={(e) => setSelectedProjectId(e.target.value)}
-            className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
-          >
-            <option value="">All Projects</option>
-            {filteredProjects.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
+            <LuSlidersHorizontal className="h-4 w-4" />
+            Filters
+            {activeFilterCount > 0 && (
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
         </div>
       </div>
+
+      <form
+        onSubmit={handleQuickAdd}
+        className="mb-6 flex items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3.5 dark:border-zinc-700 dark:bg-zinc-800/50"
+      >
+        <LuPlus className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500" />
+        <input
+          ref={quickInputRef}
+          type="text"
+          value={quickTitle}
+          onChange={(e) => setQuickTitle(e.target.value)}
+          placeholder="Add a task... (press Enter to save)"
+          className="flex-1 bg-transparent text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none dark:text-zinc-100 dark:placeholder-zinc-500"
+          disabled={quickLoading}
+        />
+      </form>
 
       {filteredTasks.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-zinc-300 py-16 dark:border-zinc-700">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
             {allTasks.length === 0
-              ? "No tasks yet. Create tasks from within a project."
+              ? "No tasks yet. Type above to add your first task."
               : "No tasks match the selected filters."}
           </p>
         </div>
@@ -247,6 +291,77 @@ export default function AllTasksPage() {
             }}
           />
         )}
+      </Modal>
+
+      <Modal
+        open={showFilters}
+        onClose={() => setShowFilters(false)}
+        title="Filters"
+        position="bottom"
+      >
+        <div className="space-y-5">
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              Context
+            </label>
+            <select
+              value={selectedContextId}
+              onChange={(e) => handleContextFilterChange(e.target.value)}
+              className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+            >
+              <option value="">All Contexts</option>
+              {contexts.map((ctx) => (
+                <option key={ctx.id} value={ctx.id}>{ctx.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              Project
+            </label>
+            <select
+              value={selectedProjectId}
+              onChange={(e) => setSelectedProjectId(e.target.value)}
+              className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+            >
+              <option value="">All Projects</option>
+              <option value="__none__">No Project</option>
+              {filteredProjects.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              Status
+            </label>
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value as TaskStatus | "")}
+              className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+            >
+              <option value="">All Statuses</option>
+              {STATUS_ORDER.map((status) => (
+                <option key={status} value={status}>{TASK_STATUS_CONFIG[status].label}</option>
+              ))}
+            </select>
+          </div>
+
+          {activeFilterCount > 0 && (
+            <button
+              onClick={() => {
+                setSelectedContextId("");
+                setSelectedProjectId("");
+                setSelectedStatus("");
+              }}
+              className="w-full rounded-lg border border-zinc-200 py-2 text-sm text-zinc-500 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+            >
+              Clear all filters
+            </button>
+          )}
+        </div>
       </Modal>
 
       <ConfirmDialog

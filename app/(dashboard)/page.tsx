@@ -16,6 +16,10 @@ import InProgressWidget from "@/components/dashboard/InProgressWidget";
 import UpcomingDueWidget from "@/components/dashboard/UpcomingDueWidget";
 import RecentlyCompletedWidget from "@/components/dashboard/RecentlyCompletedWidget";
 import ProjectOverviewWidget from "@/components/dashboard/ProjectOverviewWidget";
+import StatusDonutWidget from "@/components/dashboard/StatusDonutWidget";
+import PriorityBreakdownWidget from "@/components/dashboard/PriorityBreakdownWidget";
+import CompletionVelocityWidget from "@/components/dashboard/CompletionVelocityWidget";
+import TaskCreationTrendWidget from "@/components/dashboard/TaskCreationTrendWidget";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -43,6 +47,16 @@ export default function DashboardPage() {
         nextActionCount={nextActions.length}
         inProgressCount={inProgress.length}
       />
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <StatusDonutWidget tasks={allTasks} />
+        <PriorityBreakdownWidget tasks={allTasks} />
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <CompletionVelocityWidget tasks={recentlyCompleted} />
+        <TaskCreationTrendWidget tasks={allTasks} />
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <NextActionsWidget tasks={nextActions} projects={projects} />

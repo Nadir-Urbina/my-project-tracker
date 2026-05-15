@@ -55,15 +55,21 @@ export default function TaskCard({
     <div className="group rounded-lg border border-zinc-200 bg-white p-3 transition-shadow hover:shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
       <div className="mb-2 flex items-start justify-between gap-2">
         <div className="flex-1">
-          <Link
-            href={`/projects/${task.projectId}/tasks/${task.id}`}
-            className="text-sm font-medium text-zinc-900 hover:text-blue-600 dark:text-zinc-100 dark:hover:text-blue-400"
-          >
-            {task.name}
-          </Link>
-          {showProject && projectName && (
+          {task.projectId ? (
+            <Link
+              href={`/projects/${task.projectId}/tasks/${task.id}`}
+              className="text-sm font-medium text-zinc-900 hover:text-blue-600 dark:text-zinc-100 dark:hover:text-blue-400"
+            >
+              {task.name}
+            </Link>
+          ) : (
+            <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+              {task.name}
+            </span>
+          )}
+          {showProject && (
             <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
-              {projectName}
+              {projectName ?? "No project"}
             </p>
           )}
         </div>

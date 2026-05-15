@@ -8,9 +8,10 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  position?: "center" | "bottom";
 }
 
-export default function Modal({ open, onClose, title, children }: ModalProps) {
+export default function Modal({ open, onClose, title, children, position = "center" }: ModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -28,6 +29,38 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
   }, [open, onClose]);
 
   if (!open) return null;
+
+  if (position === "bottom") {
+    return (
+      <div
+        ref={overlayRef}
+        className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50"
+        onClick={(e) => {
+          if (e.target === overlayRef.current) onClose();
+        }}
+      >
+        <div className="animate-slide-up w-full rounded-t-2xl border-t border-zinc-200 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="flex justify-center pb-1 pt-3">
+            <div className="h-1 w-10 rounded-full bg-zinc-300 dark:bg-zinc-700" />
+          </div>
+          <div className="flex items-center justify-between px-5 py-3">
+            <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
+              {title}
+            </h2>
+            <button
+              onClick={onClose}
+              className="rounded-lg p-1 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+            >
+              <LuX className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="max-h-[70vh] overflow-y-auto px-5 pb-[calc(env(safe-area-inset-bottom)+5rem)] pt-1">
+            {children}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
